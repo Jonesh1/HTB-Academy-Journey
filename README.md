@@ -42,7 +42,7 @@ This solved the first challenge efficiently without having to inspect the entire
 
 ---
 
-## Case #1 – Retrieving Kimberly's Password
+## Case #2 – Retrieving Kimberly's Password
 
 ### Goal
 
