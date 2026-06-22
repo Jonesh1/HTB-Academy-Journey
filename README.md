@@ -366,4 +366,3 @@ sqlmap -u "http://target/case11.php?id=1" \
 * Advanced Enumeration Techniques
 
 
-
