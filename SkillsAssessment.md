@@ -35,7 +35,7 @@ This request became the main candidate for SQL injection testing.
 
 ---
 
-## Case #2 – Understanding Why request.txt Was Required
+## Case #2 – Not a GET parameter
 
 ### Goal
 
