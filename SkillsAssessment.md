@@ -49,8 +49,6 @@ By repeating the **“Add to Cart”** action while interception was enabled, Bu
 - Content-Type set to `application/json`  
 - JSON request body containing the `id` parameter  
 
-This step is critical because modern applications often rely on API-style requests where important context (headers, cookies, origin validation) is required for the backend to process the request correctly.
-
 ### Captured Request
 
 POST /action.php HTTP/1.1  
